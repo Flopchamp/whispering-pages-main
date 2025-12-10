@@ -7,16 +7,40 @@ import { FontSizeAdjuster } from "@/components/FontSizeAdjuster";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  // default to light mode
+  const [isDark, setIsDark] = useState(false);
 
-  // Set dark mode on initial load
+  // On mount, initialize theme from localStorage if present,
+  // otherwise use system preference. Persist changes to localStorage.
   useEffect(() => {
-    document.documentElement.classList.add("dark");
+    try {
+      const stored = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      if (stored === "dark" || (!stored && prefersDark)) {
+        document.documentElement.classList.add("dark");
+        setIsDark(true);
+      } else {
+        document.documentElement.classList.remove("dark");
+        setIsDark(false);
+      }
+    } catch (e) {
+      // If localStorage isn't available, fall back to light
+      document.documentElement.classList.remove("dark");
+      setIsDark(false);
+    }
   }, []);
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.classList.add("dark");
+      try { localStorage.setItem("theme", "dark"); } catch (e) { void e; }
+    } else {
+      document.documentElement.classList.remove("dark");
+      try { localStorage.setItem("theme", "light"); } catch (e) { void e; }
+    }
   };
 
   const navLinks = [
@@ -54,7 +78,8 @@ export const Header = () => {
             aria-label="Toggle theme"
             className="hover:bg-accent"
           >
-            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {/* show Sun when in light mode, Moon when in dark mode */}
+            {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
         </div>
 
@@ -68,7 +93,7 @@ export const Header = () => {
             aria-label="Toggle theme"
             className="hover:bg-accent"
           >
-            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
           <Button
             variant="ghost"
