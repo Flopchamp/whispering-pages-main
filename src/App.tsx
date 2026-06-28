@@ -12,7 +12,7 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-// we are doing great
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
