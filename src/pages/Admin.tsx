@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, type Poem, type ContactSubmission } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { LogIn, LogOut, Plus, Edit, Trash2, Loader2, Mail } from "lucide-react";
+import { LogIn, LogOut, Plus, Edit, Trash2, Loader2, Mail, KeyRound, ArrowLeft } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import {
   AlertDialog,
@@ -35,7 +35,13 @@ const Admin = () => {
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [view, setView] = useState<"login" | "forgot-password" | "reset-password">("login");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
   const [editingPoem, setEditingPoem] = useState<Poem | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [poemToDelete, setPoemToDelete] = useState<string | null>(null);
@@ -55,14 +61,32 @@ const Admin = () => {
   ];
 
   useEffect(() => {
+    if (!lockoutUntil) return;
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockoutUntil(null);
+        setLockoutSeconds(0);
+      } else {
+        setLockoutSeconds(remaining);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setView("reset-password");
+      } else {
+        setUser(session?.user ?? null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -94,16 +118,70 @@ const Admin = () => {
     enabled: !!user,
   });
 
+  const isLockedOut = lockoutUntil !== null && Date.now() < lockoutUntil;
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLockedOut) return;
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      setFailedAttempts(0);
       toast({ title: "Welcome back!", description: "You've successfully logged in." });
     } catch (error) {
+      const next = failedAttempts + 1;
+      setFailedAttempts(next);
+      if (next >= 5) {
+        const until = Date.now() + 60_000;
+        setLockoutUntil(until);
+        setLockoutSeconds(60);
+        toast({ title: "Too many failed attempts", description: "Please wait 60 seconds before trying again.", variant: "destructive" });
+      } else {
+        const errorMessage = error instanceof Error ? error.message : "An error occurred";
+        toast({ title: "Login failed", description: `${errorMessage} (${next}/5 attempts)`, variant: "destructive" });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin`,
+      });
+      if (error) throw error;
+      toast({ title: "Reset link sent", description: "Check your email for a password reset link." });
+      setView("login");
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred";
-      toast({ title: "Login failed", description: errorMessage, variant: "destructive" });
+      toast({ title: "Error sending reset link", description: errorMessage, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Passwords don't match", description: "Please make sure both passwords are identical.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast({ title: "Password updated", description: "Your password has been changed. Please log in." });
+      await supabase.auth.signOut();
+      setView("login");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An error occurred";
+      toast({ title: "Error updating password", description: errorMessage, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -178,29 +256,100 @@ const Admin = () => {
     setShowPoemForm(false);
   };
 
-  if (!user) {
+  if (!user || view === "reset-password") {
     return (
       <div className="min-h-screen py-20 flex items-center justify-center">
         <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.6 }} className="w-full max-w-md">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl font-playfair text-center">Admin Login</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@example.com" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Logging in...</> : <><LogIn className="mr-2 h-4 w-4" />Login</>}
-                </Button>
-              </form>
-            </CardContent>
+            {view === "login" && (
+              <>
+                <CardHeader>
+                  <CardTitle className="text-2xl font-playfair text-center">Admin Login</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@example.com" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading || isLockedOut}>
+                      {isLockedOut
+                        ? `Too many attempts — try again in ${lockoutSeconds}s`
+                        : isLoading
+                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Logging in...</>
+                        : <><LogIn className="mr-2 h-4 w-4" />Login</>}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => setView("forgot-password")}
+                      className="w-full text-sm text-muted-foreground hover:text-primary transition-colors text-center"
+                    >
+                      Forgot your password?
+                    </button>
+                  </form>
+                </CardContent>
+              </>
+            )}
+
+            {view === "forgot-password" && (
+              <>
+                <CardHeader>
+                  <CardTitle className="text-2xl font-playfair text-center">Reset Password</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4 text-center">
+                    Enter your email and we'll send you a reset link.
+                  </p>
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email</Label>
+                      <Input id="reset-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@example.com" required />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading
+                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending...</>
+                        : <><Mail className="mr-2 h-4 w-4" />Send Reset Link</>}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => setView("login")}
+                      className="w-full text-sm text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1"
+                    >
+                      <ArrowLeft className="h-3 w-3" />Back to login
+                    </button>
+                  </form>
+                </CardContent>
+              </>
+            )}
+
+            {view === "reset-password" && (
+              <>
+                <CardHeader>
+                  <CardTitle className="text-2xl font-playfair text-center">Set New Password</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">New Password</Label>
+                      <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm Password</Label>
+                      <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading
+                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Updating...</>
+                        : <><KeyRound className="mr-2 h-4 w-4" />Update Password</>}
+                    </Button>
+                  </form>
+                </CardContent>
+              </>
+            )}
           </Card>
         </motion.div>
       </div>
