@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 
 const Admin = () => {
+  const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
@@ -180,7 +181,7 @@ const Admin = () => {
   if (!user) {
     return (
       <div className="min-h-screen py-20 flex items-center justify-center">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-md">
+        <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.6 }} className="w-full max-w-md">
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl font-playfair text-center">Admin Login</CardTitle>
@@ -209,7 +210,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen py-20">
       <div className="container mx-auto px-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="flex justify-between items-center mb-8">
+        <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.6 }} className="flex justify-between items-center mb-8">
           <h1 className="font-playfair text-4xl md:text-5xl font-bold text-foreground">Admin Dashboard</h1>
           <Button variant="outline" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Logout</Button>
         </motion.div>

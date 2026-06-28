@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -10,13 +10,15 @@ interface PoemCardProps {
 }
 
 export const PoemCard = ({ title, content, theme, index = 0 }: PoemCardProps) => {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover={{ y: -8 }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : index * 0.1 }}
+      whileHover={shouldReduceMotion ? undefined : { y: -8 }}
     >
       <Card className="group hover:shadow-2xl transition-all duration-500 border-border/50 bg-card relative overflow-hidden">
         {/* Subtle gradient on hover */}

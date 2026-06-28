@@ -1,8 +1,9 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, BookOpen, Feather, Sparkles } from "lucide-react";
 
 const About = () => {
+  const shouldReduceMotion = useReducedMotion();
   const features = [
     {
       icon: Heart,
@@ -31,9 +32,9 @@ const About = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.6 }}
           className="text-center mb-16"
         >
           <h1 className="font-playfair text-5xl md:text-6xl font-bold text-foreground mb-6">
@@ -49,9 +50,9 @@ const About = () => {
         <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-12">
           {/* Author Bio */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: shouldReduceMotion ? 0 : 0.1 }}
           >
             <Card className="h-full border-border/50 bg-card/50 backdrop-blur">
               <CardContent className="p-6 md:p-8">
@@ -82,9 +83,9 @@ const About = () => {
 
           {/* About the Collection */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: shouldReduceMotion ? 0 : 0.2 }}
           >
             <Card className="h-full border-border/50 bg-card/50 backdrop-blur">
               <CardContent className="p-6 md:p-8">
@@ -117,9 +118,9 @@ const About = () => {
 
         {/* Features Grid */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: shouldReduceMotion ? 0 : 0.4 }}
         >
           <h2 className="font-playfair text-3xl md:text-4xl font-bold text-center text-foreground mb-12">
             What Defines This Collection
@@ -129,9 +130,9 @@ const About = () => {
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.5 + index * 0.1 }}
               >
                 <Card className="h-full border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                   <CardContent className="p-6">

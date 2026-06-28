@@ -1,10 +1,11 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Home as HomeIcon, Feather } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
+  const shouldReduceMotion = useReducedMotion();
   const location = useLocation();
 
   useEffect(() => {
@@ -17,55 +18,46 @@ const NotFound = () => {
       <div className="absolute inset-0 hero-pattern opacity-50" />
       
       {/* Decorative Elements */}
-      <motion.div 
+      <motion.div
         className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3] 
-        }}
-        transition={{ duration: 4, repeat: Infinity }}
+        animate={shouldReduceMotion ? { scale: 1, opacity: 0.3 } : { scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+        transition={shouldReduceMotion ? {} : { duration: 4, repeat: Infinity }}
       />
-      <motion.div 
+      <motion.div
         className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1, 1.3, 1],
-          opacity: [0.3, 0.5, 0.3] 
-        }}
-        transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+        animate={shouldReduceMotion ? { scale: 1, opacity: 0.3 } : { scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
+        transition={shouldReduceMotion ? {} : { duration: 5, repeat: Infinity, delay: 1 }}
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.6 }}
         className="text-center px-4 relative z-10"
       >
-        {/* Animated 404 */}
         <motion.div
-          initial={{ scale: 0.5, opacity: 0 }}
+          initial={shouldReduceMotion ? false : { scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, type: "spring" }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.5, type: "spring" }}
         >
           <h1 className="mb-4 text-9xl font-playfair font-bold text-primary drop-shadow-lg">
             404
           </h1>
         </motion.div>
 
-        {/* Title with subtle animation */}
-        <motion.h2 
+        <motion.h2
           className="mb-4 text-3xl font-playfair font-semibold text-foreground"
-          initial={{ opacity: 0 }}
+          initial={shouldReduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.3, delay: shouldReduceMotion ? 0 : 0.3 }}
         >
           Lost in the Poetry
         </motion.h2>
 
-        {/* Description */}
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={shouldReduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.3, delay: shouldReduceMotion ? 0 : 0.5 }}
           className="mb-8"
         >
           <p className="text-lg text-muted-foreground max-w-md mx-auto mb-4">
@@ -76,11 +68,10 @@ const NotFound = () => {
           </p>
         </motion.div>
 
-        {/* Decorative Quote */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.3, delay: shouldReduceMotion ? 0 : 0.7 }}
           className="mb-8 max-w-lg mx-auto"
         >
           <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6 border border-border/50">
@@ -91,11 +82,10 @@ const NotFound = () => {
           </div>
         </motion.div>
 
-        {/* Return Button */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.3, delay: shouldReduceMotion ? 0 : 0.9 }}
         >
           <Link to="/">
             <Button size="lg" className="group shadow-lg hover:shadow-xl transition-all">

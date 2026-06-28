@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "@/components/NavLink";
 import { Menu, X, Moon, Sun } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { FontSizeAdjuster } from "@/components/FontSizeAdjuster";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // default to light mode
   const [isDark, setIsDark] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   // On mount, initialize theme from localStorage if present,
   // otherwise use system preference. Persist changes to localStorage.
@@ -110,10 +110,10 @@ export const Header = () => {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
+              exit={shouldReduceMotion ? undefined : { opacity: 0, y: -20 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
               className="absolute top-16 left-0 right-0 bg-background border-b border-border md:hidden"
             >
               <div className="container mx-auto py-4 px-4 flex flex-col gap-4">

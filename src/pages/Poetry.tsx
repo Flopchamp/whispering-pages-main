@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { PoemCard } from "@/components/PoemCard";
 import { Button } from "@/components/ui/button";
 import { poems as staticPoems } from "@/data/poems";
 import { PoetryLoading } from "@/components/PoetryLoading";
 
 const Poetry = () => {
+  const shouldReduceMotion = useReducedMotion();
   const [selectedTheme, setSelectedTheme] = useState<string>("All");
   const [isLoading, setIsLoading] = useState(true);
   const poems = staticPoems;
@@ -35,9 +36,9 @@ const Poetry = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.6 }}
           className="text-center mb-12"
         >
           <h1 className="font-playfair text-5xl md:text-6xl font-bold text-foreground mb-6">
@@ -51,9 +52,9 @@ const Poetry = () => {
 
         {/* Theme Filter */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }}
           className="flex flex-wrap gap-3 justify-center mb-12"
         >
           {themes.map((theme) => (
@@ -83,7 +84,7 @@ const Poetry = () => {
 
         {filteredPoems.length === 0 && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-center py-12"
           >

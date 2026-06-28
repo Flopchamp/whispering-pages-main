@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const Contact = () => {
+  const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -61,9 +62,9 @@ const Contact = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.6 }}
           className="text-center mb-16"
         >
           <h1 className="font-playfair text-5xl md:text-6xl font-bold text-foreground mb-6">
@@ -78,9 +79,9 @@ const Contact = () => {
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: shouldReduceMotion ? 0 : 0.2 }}
           >
             <Card className="border-border/50">
               <CardContent className="p-8">
@@ -148,9 +149,9 @@ const Contact = () => {
 
           {/* Contact Info */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: shouldReduceMotion ? 0 : 0.3 }}
             className="space-y-6"
           >
             <Card className="border-border/50 bg-gradient-to-br from-primary/5 to-secondary/5">

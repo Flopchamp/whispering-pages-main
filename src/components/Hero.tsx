@@ -1,9 +1,11 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import { BookOpen, Feather } from "lucide-react";
 
 export const Hero = () => {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Background Pattern */}
@@ -19,15 +21,15 @@ export const Hero = () => {
       {/* Content */}
       <div className="container mx-auto px-4 py-20 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: "easeOut" }}
           className="max-w-4xl mx-auto text-center"
         >
           <motion.div
-            initial={{ scale: 0 }}
+            initial={shouldReduceMotion ? false : { scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }}
             className="inline-block mb-6"
           >
             <Feather className="h-12 w-12 text-primary" />
@@ -44,9 +46,9 @@ export const Hero = () => {
           </p>
           
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <NavLink to="/poetry">
