@@ -1,47 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import { Menu, X, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { FontSizeAdjuster } from "@/components/FontSizeAdjuster";
+import { useTheme } from "next-themes";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const shouldReduceMotion = useReducedMotion();
-
-  // On mount, initialize theme from localStorage if present,
-  // otherwise use system preference. Persist changes to localStorage.
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-      if (stored === "dark" || (!stored && prefersDark)) {
-        document.documentElement.classList.add("dark");
-        setIsDark(true);
-      } else {
-        document.documentElement.classList.remove("dark");
-        setIsDark(false);
-      }
-    } catch (e) {
-      // If localStorage isn't available, fall back to light
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    if (next) {
-      document.documentElement.classList.add("dark");
-      try { localStorage.setItem("theme", "dark"); } catch (e) { void e; }
-    } else {
-      document.documentElement.classList.remove("dark");
-      try { localStorage.setItem("theme", "light"); } catch (e) { void e; }
-    }
-  };
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const toggleTheme = () => setTheme(isDark ? "light" : "dark");
 
   const navLinks = [
     { to: "/", label: "Home" },
@@ -78,7 +48,6 @@ export const Header = () => {
             aria-label="Toggle theme"
             className="hover:bg-accent"
           >
-            {/* show Sun when in light mode, Moon when in dark mode */}
             {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
         </div>
