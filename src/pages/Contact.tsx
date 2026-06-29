@@ -169,7 +169,7 @@ const Contact = () => {
                   </p>
                   
                   <a
-                    href= "Bettymary623@gmail.com"
+                    href={`mailto:${import.meta.env.VITE_CONTACT_EMAIL}`}
                     className="block text-primary hover:underline font-medium"
                   >
                     {import.meta.env.VITE_CONTACT_EMAIL}
