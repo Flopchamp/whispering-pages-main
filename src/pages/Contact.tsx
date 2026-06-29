@@ -33,7 +33,7 @@ const Contact = () => {
 
       toast({
         title: "Thank you for your message!",
-        description: "We'll get back to you at bettymary623@gmail.com as soon as possible.",
+        description: `We'll get back to you at ${import.meta.env.VITE_CONTACT_EMAIL} as soon as possible.`,
       });
       
       // Reset form
@@ -42,7 +42,7 @@ const Contact = () => {
       console.error('Error submitting form:', error);
       toast({
         title: "Error sending message",
-        description: "Please email us directly at bettymary623@gmail.com",
+        description: `Please email us directly at ${import.meta.env.VITE_CONTACT_EMAIL}`,
         variant: "destructive",
       });
     } finally {
@@ -168,11 +168,11 @@ const Contact = () => {
                     Prefer email? Feel free to reach out directly at:
                   </p>
                   
-                  <a 
-                    href="mailto:bettymary623@gmail.com" 
+                  <a
+                    href={`mailto:${import.meta.env.VITE_CONTACT_EMAIL}`}
                     className="block text-primary hover:underline font-medium"
                   >
-                    bettymary623@gmail.com
+                    {import.meta.env.VITE_CONTACT_EMAIL}
                   </a>
 
                   <div className="pt-4 border-t border-border">
