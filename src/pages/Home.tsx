@@ -4,11 +4,24 @@ import { PoemCard } from "@/components/PoemCard";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import { ArrowRight } from "lucide-react";
-import { poems as staticPoems } from "@/data/poems";
+import { supabase, type Poem } from "@/lib/supabase";
+import { useQuery } from "@tanstack/react-query";
 
 const Home = () => {
   const shouldReduceMotion = useReducedMotion();
-  const featuredPoems = staticPoems.slice(0, 3);
+
+  const { data: featuredPoems = [] } = useQuery({
+    queryKey: ["poems", "featured"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("poems")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(3);
+      if (error) throw error;
+      return data as Poem[];
+    },
+  });
 
   return (
     <div className="min-h-screen">

@@ -1,30 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { PoemCard } from "@/components/PoemCard";
 import { Button } from "@/components/ui/button";
-import { poems as staticPoems } from "@/data/poems";
+import { supabase, type Poem } from "@/lib/supabase";
+import { useQuery } from "@tanstack/react-query";
 import { PoetryLoading } from "@/components/PoetryLoading";
 
 const Poetry = () => {
   const shouldReduceMotion = useReducedMotion();
   const [selectedTheme, setSelectedTheme] = useState<string>("All");
-  const [isLoading, setIsLoading] = useState(true);
-  const poems = staticPoems;
 
-  // Simulate loading for smooth UX
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: poems = [], isLoading } = useQuery({
+    queryKey: ["poems"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("poems")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Poem[];
+    },
+  });
 
-  // Get unique themes
   const themes = ["All", ...Array.from(new Set(poems.map(poem => poem.theme)))];
-
-  // Filter poems by theme
-  const filteredPoems = selectedTheme === "All" 
-    ? poems 
+  const filteredPoems = selectedTheme === "All"
+    ? poems
     : poems.filter(poem => poem.theme === selectedTheme);
 
   if (isLoading) {
