@@ -1,94 +1,50 @@
-
 # Whispering Pages
 
-An elegant collection of contemporary poetry exploring themes of love, loss, nature, and the human experience.
+A site for publishing and reading poetry. Poems are grouped by theme, readers
+can browse or search them, and an admin page handles adding and editing entries.
 
-## 🌟 Project Overview
+## Structure
 
-Whispering Pages is a modern web application for reading, sharing, and managing poetry. It features a beautiful UI, categorized poems, and a contact form for readers to connect.
+Six routes under `src/pages`: `Home` (featured poems), `Poetry` (the full
+collection), `About`, `Contact` (a form that writes submissions to the
+database), `Admin` (poem management), and a `NotFound` fallback.
 
-## ✨ Features
+Supabase holds both the poems and the contact submissions. The schema is in
+`supabase-schema.sql`.
 
-- Browse featured and categorized poems
-- Responsive, mobile-friendly design
-- Modern UI with shadcn-ui and Tailwind CSS
-- Contact form for feedback and questions
-- Supabase integration for storing poems and contact submissions
+## Running it
 
-## 🚀 Getting Started
+Requires Node.js 18+.
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18+ recommended)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
-
-
-## 🛠️ Installation
-
-Clone the repository and install dependencies:
-
-```sh
-git clone <YOUR_GIT_URL>
+```bash
+git clone https://github.com/Flopchamp/whispering-pages-main.git
 cd whispering-pages-main
 npm install
-# or
-yarn install
+npm run dev
 ```
 
-### Linting
+Create a `.env` in the project root with your Supabase project details:
 
-```sh
-npm run lint
-# or
-yarn lint
+```
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
 ```
 
-### Building for Production
+Then apply `supabase-schema.sql` to the project to create the tables.
 
-```sh
-npm run build
-# or
-yarn build
+## Other commands
+
+```bash
+npm run build     # production build
+npm run preview   # serve the production build locally
+npm run lint      # eslint
 ```
 
-### Preview Production Build
+## Deployment
 
-```sh
-npm run preview
-# or
-yarn preview
-```
+Any static host works. `vercel.json` holds the SPA rewrite rules so client-side
+routes resolve on refresh.
 
-## 🛠️ Tech Stack
+## Stack
 
-- [Vite](https://vitejs.dev/) – Fast build tool
-- [React](https://react.dev/) – UI library
-- [TypeScript](https://www.typescriptlang.org/) – Type safety
-- [shadcn/ui](https://ui.shadcn.com/) – UI components
-- [Tailwind CSS](https://tailwindcss.com/) – Utility-first CSS
-- [Supabase](https://supabase.com/) – Backend as a Service (database & auth)
-
-## 🗄️ Database (Supabase)
-
-This project uses [Supabase](https://supabase.com/) for storing poems and contact submissions. See `supabase-schema.sql` for the schema and setup instructions.
-
-**Environment variables required:**
-
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-
-Add these to a `.env` file in the project root.
-
-## 📦 Deployment
-
-You can deploy Whispering Pages to any modern hosting provider (Vercel, Netlify, etc.).
-
-For Vercel, see `vercel.json` for SPA routing configuration.
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
-## 📄 License
-
-MIT
+Vite · React · TypeScript · Tailwind CSS · shadcn/ui · Supabase
